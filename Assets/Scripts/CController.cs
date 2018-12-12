@@ -18,7 +18,7 @@ public class CController : MonoBehaviour {
     {
         camTransform = Camera.main.transform;
         controller = GetComponent<CharacterController>();
-        camForward = Vector3.Scale(camTransform.forward, new Vector3(1, 0, 1).normalized);
+        camForward = Vector3.Scale(camTransform.forward, new Vector3(1, 0, 1).normalized); // move this to the rotation method if the cam angle isnt fixed
     }
 
     private void Update()
@@ -26,16 +26,18 @@ public class CController : MonoBehaviour {
         Vector3 moveInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
         if (moveInput.magnitude > 0)
         {
-            //rotation
-            Vector3 camMove = moveInput.z * camForward + moveInput.x * camTransform.right;
-            Quaternion targetRot = Quaternion.LookRotation(camMove);
-            Quaternion modelRot = Model.rotation;
-            transform.rotation = targetRot; // character turns instantly and the model follows.
-            Model.rotation = Quaternion.Lerp(modelRot, targetRot, TurnSpeed * Time.deltaTime);
-            
-            // movement
+            DoRotation(moveInput);
             Vector3 moveMotion = transform.forward * MoveSpeed * moveInput.magnitude;
             controller.Move(moveMotion * Time.deltaTime);
         }
+    }
+
+    private void DoRotation(Vector3 input)
+    {
+        Vector3 camMove = input.z * camForward + input.x * camTransform.right;
+        Quaternion targetRot = Quaternion.LookRotation(camMove);
+        Quaternion modelRot = Model.rotation;
+        transform.rotation = targetRot; // character turns instantly and the model follows.
+        Model.rotation = Quaternion.Lerp(modelRot, targetRot, TurnSpeed * Time.deltaTime);
     }
 }
